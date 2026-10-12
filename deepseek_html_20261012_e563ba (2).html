@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Режим дня детского сада № 2 г. Липецка</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    padding: 24px;
+    max-width: 820px;
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #2d3748;
+    margin-bottom: 4px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #a0aec0;
+    margin-bottom: 16px;
+  }
+
+  .clock {
+    text-align: center;
+    font-size: 38px;
+    font-weight: 700;
+    color: #667eea;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .date {
+    text-align: center;
+    font-size: 13px;
+    color: #a0aec0;
+    margin-bottom: 16px;
+  }
+
+  /* ====== Переключатель групп ====== */
+  .group-switcher {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .group-switcher::-webkit-scrollbar {
+    height: 4px;
+  }
+  .group-switcher::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 2px;
+  }
+
+  .group-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    background: #edf2f7;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .group-btn:hover {
+    background: #e2e8f0;
+  }
+
+  .group-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.35);
+  }
+
+  /* ====== Период года ====== */
+  .season-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #fef3c7;
+    color: #92400e;
+    margin-bottom: 12px;
+  }
+
+  .season-badge.summer {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .season-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .season-wrap {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  /* ====== Статус ====== */
+  .current-status {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    text-align: center;
+    transition: all 0.4s ease;
+  }
+
+  .current-status .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.85;
+    margin-bottom: 4px;
+  }
+
+  .current-status .name {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .current-status .time-range {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .progress-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: #fff;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 1s linear;
+  }
+
+  /* ====== Список ====== */
+  .schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: #f7fafc;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .item .num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #718096;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    margin-top: 1px;
+  }
+
+  .item .body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .item .text {
+    font-size: 13.5px;
+    color: #4a5568;
+    line-height: 1.35;
+    flex: 1;
+  }
+
+  .item .time {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #a0aec0;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  .item .bar-track {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .item .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #cbd5e0;
+    border-radius: 2px;
+    transition: width 1s linear;
+  }
+
+  .item.past { opacity: 0.6; }
+  .item.past .num { background: #cbd5e0; color: #fff; }
+  .item.past .bar-fill { background: #a0aec0; width: 100%; }
+
+  .item.active {
+    background: linear-gradient(90deg, #ebf4ff 0%, #f7fafc 100%);
+    border-left-color: #667eea;
+    box-shadow: 0 3px 14px rgba(102,126,234,0.22);
+    transform: scale(1.01);
+  }
+  .item.active .num {
+    background: #667eea;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.2);
+  }
+  .item.active .text { color: #2d3748; font-weight: 600; }
+  .item.active .time { color: #667eea; }
+  .item.active .bar-track { background: #dbe4ff; }
+  .item.active .bar-fill {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+  }
+
+  .item.future .num { background: #e2e8f0; }
+
+  .item.disabled {
+    opacity: 0.35;
+    background: #f7fafc;
+  }
+
+  .item.disabled .text::after {
+    content: " (нет в этот период)";
+    font-size: 11px;
+    color: #a0aec0;
+    font-style: italic;
+  }
+
+  /* ====== Адаптив ====== */
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .container { padding: 18px 14px; border-radius: 16px; }
+    h1 { font-size: 17px; }
+    .clock { font-size: 32px; }
+    .current-status { padding: 13px 14px; }
+    .current-status .name { font-size: 14px; }
+    .item { padding: 9px 10px; gap: 8px; }
+    .item .num { width: 22px; height: 22px; font-size: 11px; }
+    .item .text { font-size: 12.5px; }
+    .item .time { font-size: 11px; }
+    .group-btn { padding: 7px 11px; font-size: 11px; }
+  }
+
+  @media (max-width: 380px) {
+    .clock { font-size: 26px; }
+    .item .row { flex-direction: column; gap: 2px; }
+    .item .time { font-size: 10.5px; }
+  }
+
+  @media (min-width: 1024px) {
+    .container { padding: 28px; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🕐 Режим дня детского сада № 2 г. Липецка</h1>
+  <div class="subtitle">2026–2027 учебный год</div>
+
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="date" id="date"></div>
+
+  <!-- Переключатель групп -->
+  <div class="group-switcher" id="groupSwitcher"></div>
+
+  <!-- Индикатор периода года -->
+  <div class="season-wrap">
+    <div class="season-badge" id="seasonBadge">
+      <span class="dot"></span>
+      <span id="seasonText">Сентябрь–Май</span>
+    </div>
+  </div>
+
+  <!-- Текущий момент -->
+  <div class="current-status" id="status">
+    <div class="label">Сейчас</div>
+    <div class="name" id="statusName">—</div>
+    <div class="time-range" id="statusRange"></div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="statusBar"></div>
+    </div>
+  </div>
+
+  <!-- Расписание -->
+  <div class="schedule" id="schedule"></div>
+</div>
+
+<script>
+/* =====================================================
+   ДАННЫЕ ГРУПП
+   Каждая группа содержит массив режимных моментов.
+   start/end — "Сентябрь-Май" (в минутах от полуночи)
+   startS/endS — "Июнь-Август" (если null — момента нет в этот период)
+   ===================================================== */
+function t(h, m) { return h * 60 + (m || 0); }
+
+const GROUPS = [
+  {
+    id: "mlad2",
+    name: "2-я младшая",
+    subtitle: "Вторая младшая возрастная группа (3–4 года)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(9,0),   end: t(9,35),  startS: t(9,0),  endS: t(10,20) },
+      { text: "Занятия",
+        start: t(9,35),  end: t(10,20), startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,20), end: t(10,40), startS: t(10,20), endS: t(10,40) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(10,40), end: t(12,20), startS: t(10,40), endS: t(12,20) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,20), end: t(12,50), startS: t(12,20), endS: t(12,50) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(12,50), end: t(15,30), startS: t(12,50), endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия",
+        start: null,     end: null,     startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(16,0),  end: t(16,30), startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "sred",
+    name: "Средняя",
+    subtitle: "Средняя возрастная группа (4–5 лет)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(9,0),   end: t(9,30),  startS: t(9,0),  endS: t(10,30) },
+      { text: "Занятия",
+        start: t(9,30),  end: t(10,20), startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,30), end: t(10,50), startS: t(10,30), endS: t(10,50) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(10,50), end: t(12,20), startS: t(10,50), endS: t(12,20) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,20), end: t(12,50), startS: t(12,20), endS: t(12,50) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(12,50), end: t(15,30), startS: t(12,50), endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия",
+        start: null,     end: null,     startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(16,0),  end: t(16,30), startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "stars",
+    name: "Старшая",
+    subtitle: "Старшая возрастная группа (5–6 лет)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(10,0),  end: t(10,30), startS: t(9,0),  endS: t(10,30) },
+      { text: "Занятия",
+        start: t(9,0),   end: t(10,0),  startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,30), end: t(10,50), startS: t(10,30), endS: t(10,50) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(10,50), end: t(12,20), startS: t(10,50), endS: t(12,20) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,20), end: t(12,50), startS: t(12,20), endS: t(12,50) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(12,50), end: t(15,30), startS: t(12,50), endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия",
+        start: t(16,0),  end: t(16,25), startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: null,     end: null,     startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "podgot",
+    name: "Подготовительная",
+    subtitle: "Подготовительная возрастная группа (6–7 лет)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: null,     end: null,     startS: t(9,0),  endS: t(10,40) },
+      { text: "Занятия",
+        start: t(9,0),   end: t(10,55), startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,55), end: t(11,15), startS: t(10,40), endS: t(11,0) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(11,15), end: t(12,30), startS: t(11,0),  endS: t(12,30) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,30), end: t(13,0),  startS: t(12,30), endS: t(13,0) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(13,0),  end: t(15,30), startS: t(13,0),  endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия",
+        start: null,     end: null,     startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(16,0),  end: t(16,30), startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "mlad1",
+    name: "1-я младшая",
+    subtitle: "Первая младшая возрастная группа (2–3 года)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,20),  startS: t(7,0),  endS: t(8,20) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,20),  end: t(9,0),   startS: t(8,20), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(9,0),   end: t(9,40),  startS: t(9,0),  endS: t(10,10) },
+      { text: "Занятия по подгруппам",
+        start: t(9,40),  end: t(10,10), startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,10), end: t(10,40), startS: t(10,10), endS: t(10,40) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(10,40), end: t(11,30), startS: t(10,30), endS: t(11,40) },
+      { text: "Подготовка к обеду, обед",
+        start: t(11,30), end: t(12,30), startS: t(11,40), endS: t(12,30) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(12,30), end: t(15,30), startS: t(12,30), endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия по подгруппам",
+        start: t(16,0),  end: t(16,30), startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: null,     end: null,     startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "logo",
+    name: "Логопедическая",
+    subtitle: "Разновозрастная (компенсирующая) группа (5–8 лет)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: null,     end: null,     startS: t(9,0),  endS: t(10,50) },
+      { text: "Занятия",
+        start: t(9,0),   end: t(10,50), startS: null,    endS: null },
+      { text: "Второй завтрак",
+        start: t(10,50), end: t(11,10), startS: t(10,50), endS: t(11,10) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(11,10), end: t(12,30), startS: t(11,10), endS: t(12,30) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,30), end: t(13,0),  startS: t(12,30), endS: t(13,0) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(13,0),  end: t(15,30), startS: t(13,0),  endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)/коррек. час",
+        start: t(16,0),  end: t(16,30), startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  },
+  {
+    id: "ozdor",
+    name: "Оздоровительная",
+    subtitle: "Разновозрастная (оздоровительная) группа (3–8 лет)",
+    schedule: [
+      { text: "Прием детей, утренняя гимнастика, самостоятельная деятельность",
+        start: t(7,0),   end: t(8,30),  startS: t(7,0),  endS: t(8,30) },
+      { text: "Подготовка к завтраку, завтрак",
+        start: t(8,30),  end: t(9,0),   startS: t(8,30), endS: t(9,0) },
+      { text: "Занятия с учетом возрастных особенностей",
+        start: t(9,0),   end: t(10,50), startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: null,     end: null,     startS: t(9,0),  endS: t(10,30) },
+      { text: "Второй завтрак",
+        start: t(10,50), end: t(11,5),  startS: t(10,30), endS: t(10,50) },
+      { text: "Подготовка к прогулке, прогулка, возвращение с прогулки",
+        start: t(11,5),  end: t(12,20), startS: t(10,50), endS: t(12,20) },
+      { text: "Подготовка к обеду, обед",
+        start: t(12,20), end: t(12,50), startS: t(12,20), endS: t(12,50) },
+      { text: "Подготовка ко сну, дневной сон, постепенный подъем",
+        start: t(12,50), end: t(15,30), startS: t(12,50), endS: t(15,30) },
+      { text: "Полдник",
+        start: t(15,30), end: t(16,0),  startS: t(15,30), endS: t(16,0) },
+      { text: "Занятия с учетом возрастных особенностей",
+        start: null,     end: null,     startS: null,    endS: null },
+      { text: "Игры, самостоятельная деятельность (на улице в ЛОП)",
+        start: t(16,0),  end: t(16,30), startS: t(16,0),  endS: t(16,30) },
+      { text: "Подготовка к ужину, ужин",
+        start: t(16,30), end: t(17,0),  startS: t(16,30), endS: t(17,0) },
+      { text: "Прогулка, игры, самостоятельная деятельность",
+        start: t(17,0),  end: t(19,0),  startS: t(17,0),  endS: t(19,0) },
+      { text: "Уход домой",
+        start: t(19,0),  end: t(24,0),  startS: t(19,0),  endS: t(24,0) }
+    ]
+  }
+];
+
+/* ====== Определение текущего периода года ======
+   Сентябрь–Май (месяцы 8–11, 0–4) — учебный период
+   Июнь–Август (месяцы 5–7) — летний период */
+function getSeason(month) {
+  // month: 0=янв ... 11=дек
+  return (month >= 5 && month <= 7) ? "summer" : "winter";
+}
+
+/* ====== Московское время ====== */
+function getMoscowTime() {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const msk = new Date(utc + 3 * 3600 * 1000);
+  return {
+    h: msk.getHours(),
+    m: msk.getMinutes(),
+    s: msk.getSeconds(),
+    totalSeconds: msk.getHours() * 3600 + msk.getMinutes() * 60 + msk.getSeconds(),
+    date: msk
+  };
+}
+
+/* ====== Форматирование ====== */
+function fmt(min) {
+  if (min === null || min === undefined) return "";
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+}
+
+function fmtRange(item, isSummer) {
+  const s = isSummer ? item.startS : item.start;
+  const e = isSummer ? item.endS : item.end;
+  if (s === null || s === undefined) return "—";
+  if (e === null || e === undefined || e >= 24*60) return fmt(s);
+  return fmt(s) + "–" + fmt(e);
+}
+
+/* ====== Состояние ====== */
+let currentGroupId = GROUPS[0].id;
+let currentSeason = "winter"; // определяется по времени
+
+/* ====== DOM ====== */
+const clockEl = document.getElementById("clock");
+const dateEl = document.getElementById("date");
+const scheduleEl = document.getElementById("schedule");
+const groupSwitcherEl = document.getElementById("groupSwitcher");
+const statusNameEl = document.getElementById("statusName");
+const statusRangeEl = document.getElementById("statusRange");
+const statusBarEl = document.getElementById("statusBar");
+const seasonBadgeEl = document.getElementById("seasonBadge");
+const seasonTextEl = document.getElementById("seasonText");
+
+const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const DAYS = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+
+let lastActiveIndex = -1;
+
+/* ====== Переключатель групп ====== */
+GROUPS.forEach(g => {
+  const btn = document.createElement("button");
+  btn.className = "group-btn";
+  btn.dataset.id = g.id;
+  btn.textContent = g.name;
+  btn.title = g.subtitle;
+  btn.addEventListener("click", () => {
+    currentGroupId = g.id;
+    updateGroupButtons();
+    renderSchedule();
+    lastActiveIndex = -1;
+    update();
+  });
+  groupSwitcherEl.appendChild(btn);
+});
+
+function updateGroupButtons() {
+  groupSwitcherEl.querySelectorAll(".group-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.id === currentGroupId);
+  });
+}
+
+/* ====== Отрисовка расписания ====== */
+function getCurrentGroup() {
+  return GROUPS.find(g => g.id === currentGroupId) || GROUPS[0];
+}
+
+function renderSchedule() {
+  const group = getCurrentGroup();
+  const isSummer = currentSeason === "summer";
+  scheduleEl.innerHTML = "";
+
+  group.schedule.forEach((item, i) => {
+    const start = isSummer ? item.startS : item.start;
+    const end = isSummer ? item.endS : item.end;
+    const hasThisItem = start !== null && start !== undefined;
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.dataset.index = i;
+    if (!hasThisItem) div.classList.add("disabled");
+
+    div.innerHTML = `
+      <div class="num">${i + 1}</div>
+      <div class="body">
+        <div class="row">
+          <div class="text">${item.text}</div>
+          <div class="time">${hasThisItem ? fmtRange(item, isSummer) : "—"}</div>
+        </div>
+        <div class="bar-track"><div class="bar-fill"></div></div>
+      </div>
+    `;
+    scheduleEl.appendChild(div);
+  });
+}
+
+/* ====== Обновление ====== */
+function update() {
+  const t = getMoscowTime();
+
+  clockEl.textContent =
+    String(t.h).padStart(2, "0") + ":" +
+    String(t.m).padStart(2, "0") + ":" +
+    String(t.s).padStart(2, "0");
+
+  dateEl.textContent =
+    DAYS[t.date.getDay()] + ", " +
+    t.date.getDate() + " " +
+    MONTHS[t.date.getMonth()] + " " +
+    t.date.getFullYear() + " · МСК";
+
+  // Определяем сезон по текущей дате
+  const detectedSeason = getSeason(t.date.getMonth());
+  if (detectedSeason !== currentSeason) {
+    currentSeason = detectedSeason;
+    renderSchedule();
+    lastActiveIndex = -1;
+  }
+
+  // Индикатор периода
+  if (currentSeason === "summer") {
+    seasonBadgeEl.classList.add("summer");
+    seasonTextEl.textContent = "Июнь–Август (летний период)";
+  } else {
+    seasonBadgeEl.classList.remove("summer");
+    seasonTextEl.textContent = "Сентябрь–Май (учебный период)";
+  }
+
+  const group = getCurrentGroup();
+  const isSummer = currentSeason === "summer";
+  const items = scheduleEl.querySelectorAll(".item");
+
+  // Определяем активный пункт
+  let activeIndex = -1;
+  let activeProgress = 0;
+
+  for (let i = 0; i < group.schedule.length; i++) {
+    const item = group.schedule[i];
+    const start = isSummer ? item.startS : item.start;
+    const end = isSummer ? item.endS : item.end;
+    if (start === null || start === undefined) continue;
+
+    const startSec = start * 60;
+    const endSec = end * 60;
+
+    if (t.totalSeconds >= startSec && t.totalSeconds < endSec) {
+      activeIndex = i;
+      const dur = endSec - startSec;
+      activeProgress = dur > 0
+        ? Math.min(100, ((t.totalSeconds - startSec) / dur) * 100)
+        : 0;
+      break;
+    }
+  }
+
+  // Обновляем каждый пункт
+  items.forEach((el, i) => {
+    const item = group.schedule[i];
+    const start = isSummer ? item.startS : item.start;
+    const end = isSummer ? item.endS : item.end;
+    const fill = el.querySelector(".bar-fill");
+
+    el.classList.remove("active", "past", "future");
+
+    if (start === null || start === undefined) {
+      el.classList.add("disabled");
+      fill.style.width = "0%";
+      return;
+    } else {
+      el.classList.remove("disabled");
+    }
+
+    const startSec = start * 60;
+    const endSec = end * 60;
+
+    if (t.totalSeconds >= endSec) {
+      el.classList.add("past");
+      fill.style.width = "100%";
+    } else if (t.totalSeconds < startSec) {
+      el.classList.add("future");
+      fill.style.width = "0%";
+    } else {
+      el.classList.add("active");
+      const dur = endSec - startSec;
+      const p = dur > 0
+        ? Math.min(100, ((t.totalSeconds - startSec) / dur) * 100)
+        : 100;
+      fill.style.width = p + "%";
+    }
+  });
+
+  // Верхняя карточка
+  if (activeIndex >= 0) {
+    const item = group.schedule[activeIndex];
+    statusNameEl.textContent = item.text;
+    statusRangeEl.textContent = fmtRange(item, isSummer);
+    statusBarEl.style.width = activeProgress + "%";
+
+    if (activeIndex !== lastActiveIndex) {
+      items[activeIndex].scrollIntoView({ behavior: "smooth", block: "nearest" });
+      lastActiveIndex = activeIndex;
+    }
+  } else {
+    // Определяем, до начала или после конца
+    let firstStart = null;
+    let lastEnd = 0;
+    group.schedule.forEach(item => {
+      const s = isSummer ? item.startS : item.start;
+      const e = isSummer ? item.endS : item.end;
+      if (s !== null && s !== undefined) {
+        if (firstStart === null || s < firstStart) firstStart = s;
+      }
+      if (e !== null && e !== undefined && e > lastEnd) lastEnd = e;
+    });
+
+    if (firstStart !== null && t.totalSeconds < firstStart * 60) {
+      statusNameEl.textContent = "Сад закрыт — скоро утренний приём";
+      statusRangeEl.textContent = "Режим дня начинается в " + fmt(firstStart);
+    } else {
+      statusNameEl.textContent = "Режим дня завершён";
+      statusRangeEl.textContent = "До завтра!";
+    }
+    statusBarEl.style.width = "0%";
+  }
+}
+
+/* ====== Инициализация ====== */
+const initTime = getMoscowTime();
+currentSeason = getSeason(initTime.date.getMonth());
+updateGroupButtons();
+renderSchedule();
+update();
+setInterval(update, 1000);
+
+/* Пересчёт при изменении размера окна (для scrollIntoView) */
+window.addEventListener("resize", () => {
+  lastActiveIndex = -1;
+});
+</script>
+</body>
+</html>
